@@ -1,0 +1,30 @@
+{
+  "notice": "Achieved simulated result on the committed scenario registry. Not elevator field performance. Not a safety certification.",
+  "seed": 20260915,
+  "n_scenarios": 24,
+  "wall_seconds": 0.634,
+  "flowlens_label_accuracy_all": 0.7083,
+  "alarm_lookup_accuracy_all": 0.4167,
+  "rule_dag_accuracy_all": 0.2917,
+  "flowlens_label_accuracy_single_fault": 0.7059,
+  "first_deviation_accuracy_single_fault": 1.0,
+  "unknown_forced_into_known": 0,
+  "demo_decisions": {
+    "healthy": "HEALTHY",
+    "door_lock_bounce": "KNOWN_FAULT",
+    "encoder_dropout": "KNOWN_FAULT",
+    "brake_drag": "KNOWN_FAULT",
+    "compound_brake_drag_encoder_noise": "HUMAN_REVIEW",
+    "sensor_fault_speed_stuck": "SENSOR_CHECK",
+    "unknown_mechanical_resistance": "UNKNOWN_FAULT"
+  },
+  "decision_counts": {
+    "HEALTHY": 4,
+    "KNOWN_FAULT": 11,
+    "HUMAN_REVIEW": 5,
+    "UNKNOWN_FAULT": 2,
+    "SENSOR_CHECK": 2
+  },
+  "mean_latency_ms": 9.602,
+  "p95_latency_ms": 15.454
+}

@@ -1,0 +1,16 @@
+FlowLens RCA Lab is published for evaluation in KONE Elevate'26 (problem statement PS13).
+
+This repository is NOT licensed as open-source software. You may clone, run, and
+review it for the purpose of judging or academic evaluation of the submission.
+
+You may not:
+
+* treat this as a grant of patent, trademark, or commercial rights;
+* represent simulator results as elevator field performance;
+* use the name FlowLens, PlantLens, or KONE in a way that implies certification,
+  partnership, or product endorsement.
+
+No proprietary KONE data, fault-code manuals, logo assets, or PlantLens production
+weights, calibration corpora, or contradiction maps are included.
+
+Ask the owner (Rhudhresh R.) before any use beyond evaluation.

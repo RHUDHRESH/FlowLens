@@ -1,0 +1,16 @@
+{
+  "brake_current_a": 0.8297196261682243,
+  "brake_release_delay_ms": 160.0,
+  "bus_v": 558.4517000000001,
+  "contactor_delay_ms": 120.0,
+  "door_close_ms": 1620.0,
+  "door_current_peak_a": 2.7352,
+  "encoder_noise": 0.005534525956393615,
+  "motor_current_peak_a": 29.8518,
+  "motor_current_rms_a": 10.101267294288878,
+  "rated_accel_mps2": 1.2574999999999992,
+  "rated_speed_mps": 1.0,
+  "source": "fitted from 64 healthy training runs",
+  "temp_rise_c": 0.9202000000000012,
+  "vibration_rms": 0.23507072243346006
+}

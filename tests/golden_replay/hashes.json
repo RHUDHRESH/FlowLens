@@ -1,0 +1,39 @@
+{
+  "demo_buttons": [
+    "healthy",
+    "door_lock_bounce",
+    "encoder_dropout",
+    "brake_drag",
+    "compound_brake_drag_encoder_noise",
+    "sensor_fault_speed_stuck",
+    "unknown_mechanical_resistance"
+  ],
+  "hashes": {
+    "brake_drag": "sha256:b904159fef0888a4b0ff5e36effd63f631f7d8729d231fa8f1c2f91cc72090bb",
+    "brake_release_failure": "sha256:0540a1a7cf92c8c62d3c98c282f956546a2befdd7f435ca24bac1314bbc1e95a",
+    "comms_corruption": "sha256:4e52c45e4165a1b82815a099a0a7e40f36f648fc7ee4755defdc48db900cc0d0",
+    "compound_brake_drag_encoder_noise": "sha256:1537d924ef0b91bc4c0c4bf9b5fa0eee57e2ed421b9786253f8e31ee7b598757",
+    "contactor_delay": "sha256:2b9d85b7538560b4058fccc01b25370fe9e97494bb929e3d5f464e93a15e2210",
+    "dc_bus_undervoltage": "sha256:e935bc01deffdc9b8f4cc1cca46b6fc7375b61d65c13e8f4cb60422cf563da7e",
+    "door_lock_bounce": "sha256:c0a79fd8e2829ad6887911fb3ddb1940c63fdec8a265105ac11b9567e85dc62d",
+    "door_lock_proof_absent": "sha256:4548692f94941c30db05c79c1076a060499bb6dcadb79dfd77867afbbb559875",
+    "door_motor_overload": "sha256:a246a1846e727520067dc93533199a462f93a2d26a602cb771e104f071f17f8e",
+    "door_obstruction": "sha256:6eab77d45f1b21b7d26129b4cc904a8c7b2d8114271ef9fca54cd2cfeb7b898d",
+    "door_position_sensor_fault": "sha256:9703b8195e3dd6f8d9a70e7d0af727056b53b45595b973f52025d1ace7001ae1",
+    "drive_cooling_degradation": "sha256:8a9a23cf0963732350376c2a69a1b8cb940c600eaf638499ff8e2548d89676f7",
+    "drive_overcurrent": "sha256:f4b00ab440cdfdc1e82221cc9f9769af35405be69de3d36066bcdd92acb58289",
+    "encoder_drift": "sha256:f927f059806e0645d42a3a654dc142e4180639a806c058b2c56e24f0c167c4ed",
+    "encoder_dropout": "sha256:add8ef2a58a058ba5aff3bb9a2ece3e29a6c42b94c45e8443fa8faed9bfd0fa1",
+    "healthy": "sha256:2c9fb798fe6a13963212132199d176eeb58baa1d9a7ba9db5d96d20d707e2431",
+    "healthy_warm": "sha256:2c9fb798fe6a13963212132199d176eeb58baa1d9a7ba9db5d96d20d707e2431",
+    "safety_chain_intermittent": "sha256:43f2ace9e25bccd08847d6fe7ed8f6845f0ae9db5f7afd50fdcc7fb05ddbec28",
+    "sensor_fault_bus_bias": "sha256:afd6dc95cff9ed6edc33cf573d77a8b087acc7a7ff765efd8602f04537ee0e59",
+    "sensor_fault_speed_stuck": "sha256:7592aebbc5fb9ee8bfe460a8fd17a5915d3f541e8a19097595e1ee7bf703f9b3",
+    "speed_mismatch": "sha256:854744af7470156c9752da2cf2616ebf852399622c2e11e32a6d7aee2d75cebd",
+    "start_permit_missing": "sha256:096609396c7f2d2ef321b446997ea629a5deacbe0f3134c61a56942b52b92ee8",
+    "supply_sag": "sha256:ea6312687172857488519dd498d4e2549683c126f4f2a3f36c54e63a80e9faec",
+    "unknown_mechanical_resistance": "sha256:4d5bb8b74bfe7a953a1a48c0e864a50a8d315ff91be7be708bc439d864471393"
+  },
+  "seed": 20260915,
+  "simulator_version": "1.0.0"
+}

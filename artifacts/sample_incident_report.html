@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FlowLens incident incident_journey_00042</title>
+<style>
+  :root {
+    --ink: #14181f; --muted: #5b6472; --line: #d8dde5; --bg: #ffffff;
+    --panel: #f6f8fa; --accent: #1d4ed8; --warn: #b45309; --bad: #b91c1c;
+    --good: #15803d;
+  }
+  * { box-sizing: border-box; }
+  body { font: 13px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+         color: var(--ink); background: var(--bg); margin: 0; padding: 32px; }
+  .sheet { max-width: 940px; margin: 0 auto; }
+  header { border-bottom: 3px solid var(--ink); padding-bottom: 12px; margin-bottom: 18px; }
+  h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em;
+       color: var(--muted); margin: 26px 0 8px; }
+  .sub { color: var(--muted); font-size: 12px; }
+  .decision { display: inline-block; padding: 5px 11px; border-radius: 4px;
+              font-weight: 700; letter-spacing: .04em; font-size: 12px; color: #fff; }
+  .d-HEALTHY { background: var(--good); }
+  .d-KNOWN_FAULT { background: var(--accent); }
+  .d-UNKNOWN_FAULT, .d-HUMAN_REVIEW, .d-INSUFFICIENT_DATA, .d-OUT_OF_SCOPE { background: var(--warn); }
+  .d-SENSOR_CHECK { background: #7c3aed; }
+  .headline { font-size: 16px; font-weight: 600; margin: 10px 0 6px; }
+  .panel { background: var(--panel); border: 1px solid var(--line);
+           border-radius: 6px; padding: 12px 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line);
+           vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; text-transform: uppercase;
+       font-size: 10px; letter-spacing: .07em; }
+  .hyp { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px;
+         margin-bottom: 10px; page-break-inside: avoid; }
+  .hyp.lead { border-color: var(--accent); border-width: 2px; }
+  .hyp h3 { margin: 0 0 6px; font-size: 14px; }
+  .prob { float: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+  ul { margin: 4px 0 0; padding-left: 18px; }
+  li { margin: 2px 0; }
+  .support li { color: var(--good); }
+  .contra li { color: var(--bad); }
+  .support li span, .contra li span { color: var(--ink); }
+  .chain { counter-reset: step; margin: 6px 0 0; padding: 0; list-style: none; }
+  .chain li { counter-increment: step; padding-left: 26px; position: relative; margin: 4px 0; }
+  .chain li::before { content: counter(step); position: absolute; left: 0; top: 1px;
+      width: 18px; height: 18px; border-radius: 50%; background: var(--ink); color: #fff;
+      font-size: 10px; text-align: center; line-height: 18px; }
+  .notice { border-left: 4px solid var(--bad); background: #fef2f2; padding: 10px 14px;
+            margin-top: 26px; font-size: 12px; }
+  .mono { font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px; }
+  footer { margin-top: 26px; border-top: 1px solid var(--line); padding-top: 10px;
+           color: var(--muted); font-size: 11px; }
+  @media print { body { padding: 0; } .hyp, .panel { page-break-inside: avoid; } }
+</style>
+</head>
+<body><div class="sheet">
+
+<header>
+  <h1>FlowLens incident report</h1>
+  <div class="sub">
+    Incident <span class="mono">incident_journey_00042</span> &middot;
+    asset <span class="mono">demo_elevator_01</span> &middot;
+    journey <span class="mono">journey_00042</span> &middot;
+    generated 2026-08-15T09:53:50+00:00
+  </div>
+</header>
+
+<span class="decision d-KNOWN_FAULT">KNOWN FAULT</span>
+<div class="headline">Most likely root cause: door lock bounce. First deviation: DOOR_CLOSING (retry loop).</div>
+<div class="panel">door lock bounce explains the first deviation, carries the strongest supporting evidence, and reaches 100% with a 100% margin over the next explanation.
+  <div class="sub" style="margin-top:6px">Decision rule: <span class="mono">supported_named_fault</span></div>
+</div>
+
+
+<h2>First causal deviation</h2>
+<div class="panel">
+  <strong>DOOR_CLOSING &middot;
+  retry loop</strong>
+  at 2020 ms
+  <p style="margin:8px 0 0">Lock proof changed state 6 times and never held for the required 250 ms. LOCK_PROVED was never established.</p>
+  
+  <div class="sub" style="margin-top:6px">
+    Candidate domains: door lock, door obstruction, safety-chain input
+  </div>
+  
+</div>
+
+
+<h2>Ranked explanations</h2>
+
+<div class="hyp lead">
+  <span class="prob">99.9%</span>
+  <h3>door lock bounce</h3>
+  <div class="sub">door lock bounce explains the first deviation and covers 100% of the raised alarms.</div>
+  
+  <div class="support"><strong>Supporting evidence</strong>
+    <ul><li><span>Lock-proof signal transitions observed during door closing: observed 6 (healthy 1, door lock contact bounce 6) - consistent with door lock contact bounce</span></li><li><span>Fraction of the pre-motion window with lock proof asserted: observed 0.181 (healthy 0.4, door lock contact bounce 0.181) - consistent with door lock contact bounce</span></li><li><span>Lock proof reached and held (1) or never established (0): observed 0 (healthy 1, door lock contact bounce 0) - consistent with door lock contact bounce</span></li><li><span>Start permission asserted: observed 0 (healthy 1, door lock contact bounce 0) - consistent with door lock contact bounce</span></li><li><span>Safety-chain state transitions in the journey: observed 0 (healthy 1, door lock contact bounce 0) - consistent with door lock contact bounce</span></li></ul>
+  </div>
+  
+  
+  <div style="margin-top:8px"><strong>Proposed causal chain</strong>
+    <ol class="chain"><li>Door lock contact makes and breaks under vibration or wear</li><li>Lock proof never holds long enough to be latched</li><li>Safety chain never completes, start permission withheld</li><li>Controller times out and raises a downstream start alarm</li></ol>
+  </div>
+</div>
+
+<div class="hyp ">
+  <span class="prob">0.1%</span>
+  <h3>door lock bounce + safety chain intermittent</h3>
+  <div class="sub">door lock bounce + safety chain intermittent explains the first deviation and covers 100% of the raised alarms.</div>
+  
+  <div class="support"><strong>Supporting evidence</strong>
+    <ul><li><span>Lock-proof signal transitions observed during door closing: observed 6 (healthy 1, door lock contact bounce 6) - consistent with door lock contact bounce</span></li><li><span>Fraction of the pre-motion window with lock proof asserted: observed 0.181 (healthy 0.4, door lock contact bounce 0.181) - consistent with door lock contact bounce</span></li><li><span>Lock proof reached and held (1) or never established (0): observed 0 (healthy 1, door lock contact bounce 0) - consistent with door lock contact bounce</span></li><li><span>Start permission asserted: observed 0 (healthy 1, safety chain intermittency 0) - consistent with safety chain intermittency</span></li><li><span>Safety-chain state transitions in the journey: observed 0 (healthy 1, door lock contact bounce 0) - consistent with door lock contact bounce</span></li><li><span>Safety chain proved and held: observed 0 (healthy 1, safety chain intermittency 0) - consistent with safety chain intermittency</span></li></ul>
+  </div>
+  
+  <div class="contra" style="margin-top:6px"><strong>Contradicting evidence</strong>
+    <ul><li><span>Safety-chain state transitions in the journey: observed 0 (healthy 1, safety chain intermittency 12) - argues against safety chain intermittency</span></li></ul>
+  </div>
+  
+</div>
+
+<div class="hyp ">
+  <span class="prob">0.0%</span>
+  <h3>brake release failure</h3>
+  <div class="sub">brake release failure does not align with where the journey first deviated and covers 0% of the raised alarms.</div>
+  
+  <div class="support"><strong>Supporting evidence</strong>
+    <ul><li><span>Brake release proof asserted by the controller: observed 0 (healthy 1, brake fails to release 0) - consistent with brake fails to release</span></li></ul>
+  </div>
+  
+  
+</div>
+
+<div class="hyp ">
+  <span class="prob">0.0%</span>
+  <h3>start permit missing</h3>
+  <div class="sub">start permit missing does not align with where the journey first deviated and covers 0% of the raised alarms.</div>
+  
+  <div class="support"><strong>Supporting evidence</strong>
+    <ul><li><span>Start permission asserted: observed 0 (healthy 1, start permission absent 0) - consistent with start permission absent</span></li></ul>
+  </div>
+  
+  
+</div>
+
+<div class="hyp ">
+  <span class="prob">0.0%</span>
+  <h3>healthy</h3>
+  <div class="sub">No fault active: the journey is explained without invoking any modelled fault.</div>
+  
+  
+  
+</div>
+
+
+
+
+<h2>Reconstructed journey</h2>
+<table>
+  <tr><th>Phase</th><th>Entered</th><th>Dwell</th><th>Guard</th><th>Entry evidence</th></tr>
+  
+  <tr>
+    <td><strong>IDLE</strong></td>
+    <td class="mono">0 ms</td>
+    <td class="mono">0 ms</td>
+    <td class="mono">-</td>
+    <td class="sub">journey start</td>
+  </tr>
+  
+  <tr>
+    <td><strong>CALL_ACCEPTED</strong></td>
+    <td class="mono">0 ms</td>
+    <td class="mono">400 ms</td>
+    <td class="mono">1500</td>
+    <td class="sub">call registered</td>
+  </tr>
+  
+  <tr>
+    <td><strong>DOOR_CLOSING</strong></td>
+    <td class="mono">400 ms</td>
+    <td class="mono">4020 ms
+        <span style="color:var(--bad)"> over guard</span></td>
+    <td class="mono">2500</td>
+    <td class="sub">door close commanded</td>
+  </tr>
+  
+  <tr>
+    <td><strong>INCIDENT_STOP</strong></td>
+    <td class="mono">4420 ms</td>
+    <td class="mono">600 ms</td>
+    <td class="mono">-</td>
+    <td class="sub">run aborted: DOOR_CLOSING_GUARD_EXPIRED</td>
+  </tr>
+  
+</table>
+
+
+<h2>Channel integrity</h2>
+<table>
+  <tr><th>Channel</th><th>Coverage</th><th>Quality</th><th>Observed defects</th></tr>
+  
+  <tr><td class="mono">brake_current_a</td>
+      <td>100%</td>
+      <td>1.00</td>
+      <td>stuck(5020ms)</td></tr>
+  
+</table>
+
+
+<h2>Uncertainty</h2>
+<div class="panel">
+  
+  Novelty 19.34 against a healthy threshold of
+  0.38
+  (outside the calibrated healthy range).
+  
+  <div class="sub" style="margin-top:4px">Most abnormal:
+    lock_proof_toggle_count (50.0σ), lock_proof_achieved (10.0σ), lock_proof_stable_ratio (4.4σ), door_close_attempts (0.0σ), door_reopen_count (0.0σ)</div>
+  
+  
+  
+  <div style="margin-top:8px">
+    Calibrated prediction set at
+    90% coverage contains
+    2 explanation(s):
+    <span class="mono">door_lock_bounce, door_lock_bounce + safety_chain_intermittent</span>
+  </div>
+  
+</div>
+
+<div class="notice">
+  <strong>Safety notice.</strong> FlowLens is read-only and advisory. It cannot reset faults, command motion, release a brake, bypass a safety circuit, or authorize return to service. All recommendations require a trained technician&#39;s judgement.
+  Every recommendation is advisory and requires a trained technician's judgement and
+  the site's approved procedures.
+</div>
+
+<footer>
+  Alarms observed: LOCK_PROOF_TIMEOUT<br>
+  Inference latency 24.2 ms &middot;
+  trace <span class="mono">sha256:c0a79fd8e2829ad6887</span> &middot;
+  config <span class="mono">sha256:c9143a2d508112e2516</span><br>
+  Versions:
+  flowlens=0.4.0 &middot; schema=1.0.0 &middot; simulator=1.0.0 &middot; features=1.0.0 &middot; graph=public-demo-1 &middot; models=1.0.0 &middot; calibration=1.0.0 &middot; evidence_source=fitted &middot; novelty_source=fitted &middot; conformal_source=fitted
+  <br><br>
+  Results in this report were produced by a deterministic simulator, not by a field
+  installation. They are not evidence of field accuracy and carry no safety certification.
+</footer>
+
+</div></body></html>

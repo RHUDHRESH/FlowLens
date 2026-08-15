@@ -1,0 +1,460 @@
+# FlowLens permitted diagnostic test whitelist.
+#
+# ---------------------------------------------------------------------------
+# SAFETY BOUNDARY - READ BEFORE EDITING
+#
+# The next-best-test planner may ONLY recommend entries from this file. It
+# cannot synthesize a procedure, cannot combine entries, and cannot recommend
+# anything whose safety_class is not OBSERVATION or DE_ENERGIZED_INSPECTION.
+#
+# Every entry in this file must be:
+#   * non-actuating   - it never energizes, releases, closes, resets or moves
+#                       anything;
+#   * generic         - it contains no bypass, bridging or jumper instruction,
+#                       and no proprietary service procedure;
+#   * reviewed        - `reviewed_by` names the person accountable for it.
+#
+# Adding an ACTUATING entry here will fail schema validation and the safety
+# test suite. That is intentional.
+# ---------------------------------------------------------------------------
+
+version: "1.0.0"
+
+tests:
+
+  - test_id: review_lock_proof_trace
+    name: "Review the recorded lock-proof trace"
+    description: >-
+      Read back the already-recorded lock-proof signal for the failed journey and
+      count its transitions during the door close window. No interaction with the
+      door, the lock or the safety circuit.
+    safety_class: OBSERVATION
+    required_maintenance_state: [IN_SERVICE, OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites: ["Journey recording available for the incident"]
+    prohibited_conditions: []
+    duration_minutes: 3.0
+    operational_cost: 0.2
+    risk_penalty: 0.0
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [door_lock_bounce, door_lock_proof_absent, door_obstruction, safety_chain_intermittent]
+    outcomes:
+      - outcome_id: repeated_transitions
+        description: "Lock proof makes and breaks several times inside the close window"
+        likelihood_by_fault:
+          door_lock_bounce: 0.85
+          door_lock_proof_absent: 0.02
+          door_obstruction: 0.15
+          safety_chain_intermittent: 0.20
+        default_likelihood: 0.08
+      - outcome_id: never_asserts
+        description: "Lock proof never asserts at any point"
+        likelihood_by_fault:
+          door_lock_bounce: 0.10
+          door_lock_proof_absent: 0.94
+          door_obstruction: 0.55
+          safety_chain_intermittent: 0.10
+        default_likelihood: 0.15
+      - outcome_id: clean_single_assert
+        description: "Lock proof asserts once and holds"
+        likelihood_by_fault:
+          door_lock_bounce: 0.05
+          door_lock_proof_absent: 0.04
+          door_obstruction: 0.30
+          safety_chain_intermittent: 0.70
+        default_likelihood: 0.77
+
+  - test_id: review_door_current_trace
+    name: "Review the recorded door operator current trace"
+    description: >-
+      Compare the recorded door operator current profile against the healthy
+      profile for this asset. Distinguishes a mechanical obstruction or binding
+      operator from a purely electrical lock-proof problem.
+    safety_class: OBSERVATION
+    required_maintenance_state: [IN_SERVICE, OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites: ["Door current channel present in the recording"]
+    prohibited_conditions: []
+    duration_minutes: 4.0
+    operational_cost: 0.2
+    risk_penalty: 0.0
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [door_obstruction, door_motor_overload, door_lock_bounce, door_lock_proof_absent]
+    outcomes:
+      - outcome_id: peak_elevated
+        description: "Current peaks well above nominal during closing"
+        likelihood_by_fault:
+          door_obstruction: 0.88
+          door_motor_overload: 0.90
+          door_lock_bounce: 0.06
+          door_lock_proof_absent: 0.04
+        default_likelihood: 0.10
+      - outcome_id: profile_nominal
+        description: "Current profile matches the healthy reference"
+        likelihood_by_fault:
+          door_obstruction: 0.12
+          door_motor_overload: 0.10
+          door_lock_bounce: 0.94
+          door_lock_proof_absent: 0.96
+        default_likelihood: 0.90
+
+  - test_id: inspect_door_lock_contact_deenergized
+    name: "Inspect the door lock contact in an approved de-energized state"
+    description: >-
+      With the installation placed out of service and de-energized under the
+      site's approved procedure, visually inspect the lock contact and its
+      terminations for wear, contamination or looseness. Inspection only - no
+      adjustment, bridging or bypass of any kind.
+    safety_class: DE_ENERGIZED_INSPECTION
+    required_maintenance_state: [OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites:
+      - "Installation taken out of service under the site procedure"
+      - "Isolation verified by the technician"
+    prohibited_conditions:
+      - "Car in service"
+      - "Any passenger present in the car"
+    duration_minutes: 20.0
+    operational_cost: 3.0
+    risk_penalty: 0.6
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [door_lock_bounce, door_lock_proof_absent]
+    outcomes:
+      - outcome_id: contact_degraded
+        description: "Contact surfaces worn, contaminated, or terminal loose"
+        likelihood_by_fault:
+          door_lock_bounce: 0.80
+          door_lock_proof_absent: 0.35
+        default_likelihood: 0.06
+      - outcome_id: contact_sound
+        description: "Contact and terminations appear sound"
+        likelihood_by_fault:
+          door_lock_bounce: 0.20
+          door_lock_proof_absent: 0.65
+        default_likelihood: 0.94
+
+  - test_id: review_safety_chain_input_log
+    name: "Review the recorded safety chain input log"
+    description: >-
+      Read back the recorded safety-chain input states and their timestamps for
+      the incident window and count transitions after lock proof was established.
+    safety_class: OBSERVATION
+    required_maintenance_state: [IN_SERVICE, OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites: ["Input log available for the incident window"]
+    prohibited_conditions: []
+    duration_minutes: 5.0
+    operational_cost: 0.3
+    risk_penalty: 0.0
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [safety_chain_intermittent, door_lock_bounce, start_permit_missing, comms_corruption]
+    outcomes:
+      - outcome_id: chain_chatters
+        description: "Safety chain state toggles repeatedly after lock proof"
+        likelihood_by_fault:
+          safety_chain_intermittent: 0.90
+          door_lock_bounce: 0.25
+          start_permit_missing: 0.05
+          comms_corruption: 0.30
+        default_likelihood: 0.07
+      - outcome_id: chain_stable_permit_absent
+        description: "Safety chain stable and proved, but start permission never asserts"
+        likelihood_by_fault:
+          safety_chain_intermittent: 0.05
+          door_lock_bounce: 0.05
+          start_permit_missing: 0.90
+          comms_corruption: 0.25
+        default_likelihood: 0.20
+      - outcome_id: chain_stable_permit_present
+        description: "Safety chain stable and start permission present"
+        likelihood_by_fault:
+          safety_chain_intermittent: 0.05
+          door_lock_bounce: 0.70
+          start_permit_missing: 0.05
+          comms_corruption: 0.45
+        default_likelihood: 0.73
+
+  - test_id: review_contactor_feedback_timing
+    name: "Review recorded main contactor feedback timing"
+    description: >-
+      Measure, from the existing recording, the delay between the drive enable
+      command and the main contactor auxiliary feedback.
+    safety_class: OBSERVATION
+    required_maintenance_state: [IN_SERVICE, OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites: ["Contactor feedback event present in the recording"]
+    prohibited_conditions: []
+    duration_minutes: 4.0
+    operational_cost: 0.2
+    risk_penalty: 0.0
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [contactor_delay, start_permit_missing, brake_release_failure]
+    outcomes:
+      - outcome_id: feedback_late
+        description: "Feedback arrives well outside its nominal window"
+        likelihood_by_fault:
+          contactor_delay: 0.92
+          start_permit_missing: 0.05
+          brake_release_failure: 0.12
+        default_likelihood: 0.08
+      - outcome_id: feedback_nominal
+        description: "Feedback timing is within its nominal window"
+        likelihood_by_fault:
+          contactor_delay: 0.08
+          start_permit_missing: 0.95
+          brake_release_failure: 0.88
+        default_likelihood: 0.92
+
+  - test_id: review_dc_bus_trace
+    name: "Review the recorded DC bus voltage trace"
+    description: >-
+      Inspect the recorded DC bus voltage through the starting window and measure
+      the depth and timing of any sag relative to the current draw.
+    safety_class: OBSERVATION
+    required_maintenance_state: [IN_SERVICE, OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites: ["DC bus channel present in the recording"]
+    prohibited_conditions: []
+    duration_minutes: 4.0
+    operational_cost: 0.2
+    risk_penalty: 0.0
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [supply_sag, dc_bus_undervoltage, drive_overcurrent, brake_drag]
+    outcomes:
+      - outcome_id: deep_sag
+        description: "Bus falls well below its operating window during starting"
+        likelihood_by_fault:
+          supply_sag: 0.80
+          dc_bus_undervoltage: 0.93
+          drive_overcurrent: 0.30
+          brake_drag: 0.10
+        default_likelihood: 0.06
+      - outcome_id: bus_stable
+        description: "Bus stays inside its normal band throughout"
+        likelihood_by_fault:
+          supply_sag: 0.20
+          dc_bus_undervoltage: 0.07
+          drive_overcurrent: 0.70
+          brake_drag: 0.90
+        default_likelihood: 0.94
+
+  - test_id: compare_encoder_channels
+    name: "Compare recorded encoder channels for internal consistency"
+    description: >-
+      Cross-check the already-recorded speed channel against the position
+      derivative over the same window. Reveals whether feedback was lost or
+      merely noisy, and whether the two channels ever disagreed.
+    safety_class: OBSERVATION
+    required_maintenance_state: [IN_SERVICE, OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites: ["Speed and position channels present in the recording"]
+    prohibited_conditions: []
+    duration_minutes: 6.0
+    operational_cost: 0.3
+    risk_penalty: 0.0
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [encoder_dropout, encoder_drift, brake_drag, sensor_fault, speed_mismatch]
+    outcomes:
+      - outcome_id: channels_disagree_gaps
+        description: "Channels disagree and the speed channel has gaps"
+        likelihood_by_fault:
+          encoder_dropout: 0.90
+          encoder_drift: 0.20
+          brake_drag: 0.04
+          sensor_fault: 0.55
+          speed_mismatch: 0.15
+        default_likelihood: 0.05
+      - outcome_id: channels_noisy_consistent
+        description: "Both channels present, noisy, but broadly tracking each other"
+        likelihood_by_fault:
+          encoder_dropout: 0.06
+          encoder_drift: 0.75
+          brake_drag: 0.14
+          sensor_fault: 0.25
+          speed_mismatch: 0.45
+        default_likelihood: 0.20
+      - outcome_id: channels_clean_consistent
+        description: "Both channels clean and internally consistent"
+        likelihood_by_fault:
+          encoder_dropout: 0.04
+          encoder_drift: 0.05
+          brake_drag: 0.82
+          sensor_fault: 0.20
+          speed_mismatch: 0.40
+        default_likelihood: 0.75
+
+  - test_id: review_brake_release_trace
+    name: "Review the recorded brake release trace"
+    description: >-
+      Compare the recorded brake coil current and release proof timing against
+      the healthy reference for this asset, and correlate with the motor current
+      during the same window.
+    safety_class: OBSERVATION
+    required_maintenance_state: [IN_SERVICE, OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites: ["Brake current channel present in the recording"]
+    prohibited_conditions: []
+    duration_minutes: 5.0
+    operational_cost: 0.3
+    risk_penalty: 0.0
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [brake_drag, brake_release_failure, encoder_dropout, drive_overcurrent, dc_bus_undervoltage]
+    outcomes:
+      - outcome_id: coil_current_low_no_proof
+        description: "Coil current well below release level and release proof absent"
+        likelihood_by_fault:
+          brake_drag: 0.10
+          brake_release_failure: 0.92
+          encoder_dropout: 0.04
+          drive_overcurrent: 0.10
+          dc_bus_undervoltage: 0.15
+        default_likelihood: 0.05
+      - outcome_id: coil_current_marginal_proof_present
+        description: "Release proof present but coil current sits below its healthy band"
+        likelihood_by_fault:
+          brake_drag: 0.82
+          brake_release_failure: 0.06
+          encoder_dropout: 0.08
+          drive_overcurrent: 0.20
+          dc_bus_undervoltage: 0.20
+        default_likelihood: 0.08
+      - outcome_id: brake_trace_nominal
+        description: "Coil current and release timing match the healthy reference"
+        likelihood_by_fault:
+          brake_drag: 0.08
+          brake_release_failure: 0.02
+          encoder_dropout: 0.88
+          drive_overcurrent: 0.70
+          dc_bus_undervoltage: 0.65
+        default_likelihood: 0.87
+
+  - test_id: review_drive_thermal_trend
+    name: "Review the recorded drive thermal trend"
+    description: >-
+      Compare the drive temperature rise across recent journeys against the load
+      those journeys actually carried. Separates a cooling problem from heat
+      generated by additional mechanical resistance.
+    safety_class: OBSERVATION
+    required_maintenance_state: [IN_SERVICE, OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites: ["Drive temperature history available"]
+    prohibited_conditions: []
+    duration_minutes: 7.0
+    operational_cost: 0.4
+    risk_penalty: 0.0
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [drive_cooling_degradation, brake_drag, drive_overcurrent]
+    outcomes:
+      - outcome_id: rise_unexplained_by_load
+        description: "Temperature rises steeply even on lightly loaded journeys"
+        likelihood_by_fault:
+          drive_cooling_degradation: 0.90
+          brake_drag: 0.30
+          drive_overcurrent: 0.25
+        default_likelihood: 0.08
+      - outcome_id: rise_tracks_current
+        description: "Temperature rise tracks the elevated motor current"
+        likelihood_by_fault:
+          drive_cooling_degradation: 0.10
+          brake_drag: 0.70
+          drive_overcurrent: 0.75
+        default_likelihood: 0.92
+
+  - test_id: review_channel_integrity_report
+    name: "Review the channel integrity report for the incident window"
+    description: >-
+      Inspect FlowLens' own per-channel integrity assessment - coverage, stuck
+      values, timestamp regularity and reported quality - before accepting any
+      equipment diagnosis derived from those channels.
+    safety_class: OBSERVATION
+    required_maintenance_state: [IN_SERVICE, OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites: []
+    prohibited_conditions: []
+    duration_minutes: 2.0
+    operational_cost: 0.1
+    risk_penalty: 0.0
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [sensor_fault, comms_corruption, encoder_dropout, door_position_sensor_fault]
+    outcomes:
+      - outcome_id: integrity_poor
+        description: "One or more channels stuck, missing or badly timestamped"
+        likelihood_by_fault:
+          sensor_fault: 0.94
+          comms_corruption: 0.80
+          encoder_dropout: 0.45
+          door_position_sensor_fault: 0.85
+        default_likelihood: 0.05
+      - outcome_id: integrity_good
+        description: "All required channels complete and well formed"
+        likelihood_by_fault:
+          sensor_fault: 0.06
+          comms_corruption: 0.20
+          encoder_dropout: 0.55
+          door_position_sensor_fault: 0.15
+        default_likelihood: 0.95
+
+  - test_id: inspect_encoder_connector_deenergized
+    name: "Inspect the encoder connector in an approved de-energized state"
+    description: >-
+      With the installation placed out of service and de-energized under the
+      site's approved procedure, visually inspect the encoder connector, cable
+      routing and strain relief. Inspection only - no reseating under power, no
+      substitution, no bypass.
+    safety_class: DE_ENERGIZED_INSPECTION
+    required_maintenance_state: [OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites:
+      - "Installation taken out of service under the site procedure"
+      - "Isolation verified by the technician"
+    prohibited_conditions:
+      - "Car in service"
+      - "Drive energized"
+    duration_minutes: 18.0
+    operational_cost: 2.5
+    risk_penalty: 0.5
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [encoder_dropout, encoder_drift, sensor_fault]
+    outcomes:
+      - outcome_id: connector_suspect
+        description: "Connector loose, corroded, or cable chafed at a strain point"
+        likelihood_by_fault:
+          encoder_dropout: 0.75
+          encoder_drift: 0.45
+          sensor_fault: 0.40
+        default_likelihood: 0.06
+      - outcome_id: connector_sound
+        description: "Connector and cable route appear sound"
+        likelihood_by_fault:
+          encoder_dropout: 0.25
+          encoder_drift: 0.55
+          sensor_fault: 0.60
+        default_likelihood: 0.94
+
+  - test_id: inspect_brake_assembly_deenergized
+    name: "Inspect the brake assembly in an approved de-energized state"
+    description: >-
+      With the installation placed out of service and de-energized under the
+      site's approved procedure, and with the car secured per that procedure,
+      visually inspect the brake assembly for pad contact, glazing, discolouration
+      and free movement of the armature. Inspection only - no adjustment, no
+      manual release, no return to service from this tool.
+    safety_class: DE_ENERGIZED_INSPECTION
+    required_maintenance_state: [OUT_OF_SERVICE, MAINTENANCE_MODE]
+    prerequisites:
+      - "Installation taken out of service under the site procedure"
+      - "Car secured per the site procedure"
+      - "Isolation verified by the technician"
+    prohibited_conditions:
+      - "Car in service"
+      - "Any passenger present in the car"
+      - "Drive energized"
+    duration_minutes: 25.0
+    operational_cost: 3.5
+    risk_penalty: 0.8
+    reviewed_by: "FlowLens safety reviewer (demo configuration)"
+    discriminates: [brake_drag, brake_release_failure, drive_cooling_degradation]
+    outcomes:
+      - outcome_id: pad_contact_evident
+        description: "Pad contact marks, glazing or heat discolouration evident"
+        likelihood_by_fault:
+          brake_drag: 0.88
+          brake_release_failure: 0.55
+          drive_cooling_degradation: 0.08
+        default_likelihood: 0.05
+      - outcome_id: assembly_sound
+        description: "Brake assembly appears clean with free armature movement"
+        likelihood_by_fault:
+          brake_drag: 0.12
+          brake_release_failure: 0.45
+          drive_cooling_degradation: 0.92
+        default_likelihood: 0.95

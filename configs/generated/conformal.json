@@ -1,0 +1,10 @@
+{
+  "alpha": 0.1,
+  "calibration_runs": 552,
+  "construction": "adaptive_prediction_set",
+  "empirical_coverage_at_threshold": 0.9021739130434783,
+  "fitted_from": {
+    "split": "calibration"
+  },
+  "nonconformity_threshold": 0.9994561261800965
+}

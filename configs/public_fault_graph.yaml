@@ -1,0 +1,593 @@
+# FlowLens public demo fault graph.
+#
+# ---------------------------------------------------------------------------
+# THIS IS A SYNTHETIC, PUBLIC DEMONSTRATION CONFIGURATION.
+#
+# It is NOT the PlantLens production graph. It contains no learned production
+# weights, no proprietary contradiction maps, no tuned field thresholds, no
+# calibration corpora, and no KONE fault codes, subcodes or manual text. Every
+# number here was authored by hand to make the simulator's behaviour legible to
+# a reviewer, and carries no field validation whatsoever.
+# ---------------------------------------------------------------------------
+#
+# Evidence model: each fault declares, per feature, the distribution it expects
+# to see. Evidence strength is the Gaussian log-likelihood ratio against the
+# healthy baseline, scaled by the declared weight and by channel quality:
+#
+#   llr(feature) = weight * quality * ( logN(x | fault_mean, fault_sd)
+#                                     - logN(x | healthy_mean, healthy_sd) )
+#
+# A positive llr becomes a support item; a negative llr becomes a contradiction
+# item. Support and contradictions therefore fall out of the same computation -
+# neither is hand-written for display.
+
+version: "public-demo-1"
+
+# --------------------------------------------------------------------------- #
+# Feature baselines: what a healthy journey looks like.
+# --------------------------------------------------------------------------- #
+features:
+  lock_proof_toggle_count:
+    description: "Lock-proof signal transitions observed during door closing"
+    healthy_mean: 1.0
+    healthy_sd: 0.35
+    requires: []
+  lock_proof_achieved:
+    description: "Lock proof reached and held (1) or never established (0)"
+    healthy_mean: 1.0
+    healthy_sd: 0.12
+    requires: []
+  lock_proof_stable_ratio:
+    description: "Fraction of the pre-motion window with lock proof asserted"
+    healthy_mean: 0.95
+    healthy_sd: 0.07
+    requires: []
+  door_close_attempts:
+    description: "Number of door close command sequences in the journey"
+    healthy_mean: 1.0
+    healthy_sd: 0.25
+    requires: []
+  door_current_peak_ratio:
+    description: "Peak door operator current relative to nominal"
+    healthy_mean: 1.0
+    healthy_sd: 0.12
+    requires: [door_current_a]
+  door_reopen_count:
+    description: "Reopen events triggered during closing"
+    healthy_mean: 0.0
+    healthy_sd: 0.30
+    requires: []
+  door_close_duration_ratio:
+    description: "Door closing duration relative to nominal"
+    healthy_mean: 1.0
+    healthy_sd: 0.15
+    requires: []
+
+  safety_chain_toggle_count:
+    description: "Safety-chain state transitions in the journey"
+    healthy_mean: 1.0
+    healthy_sd: 0.30
+    requires: []
+  safety_chain_proved:
+    description: "Safety chain proved and held"
+    healthy_mean: 1.0
+    healthy_sd: 0.12
+    requires: []
+  start_permit_present:
+    description: "Start permission asserted"
+    healthy_mean: 1.0
+    healthy_sd: 0.12
+    requires: []
+  contactor_confirm_delay_ratio:
+    description: "Main contactor feedback delay relative to nominal"
+    healthy_mean: 1.0
+    healthy_sd: 0.22
+    requires: []
+
+  dc_bus_min_ratio:
+    description: "Minimum DC bus voltage relative to nominal"
+    healthy_mean: 0.97
+    healthy_sd: 0.020
+    requires: [dc_bus_v]
+  dc_bus_sag_depth:
+    description: "Depth of the deepest DC bus sag, normalized"
+    healthy_mean: 0.03
+    healthy_sd: 0.020
+    requires: [dc_bus_v]
+
+  motor_current_peak_ratio:
+    description: "Peak motor current relative to nominal starting current"
+    healthy_mean: 1.0
+    healthy_sd: 0.10
+    requires: [motor_current_a]
+  motor_current_rms_ratio:
+    description: "RMS motor current over the motion window, relative to nominal"
+    healthy_mean: 1.0
+    healthy_sd: 0.10
+    requires: [motor_current_a]
+  current_without_motion_ratio:
+    description: "Normalized current drawn while the car is not moving"
+    healthy_mean: 0.05
+    healthy_sd: 0.040
+    requires: [motor_current_a, speed_mps]
+  drive_temp_rise_ratio:
+    description: "Drive temperature rise across the journey, relative to nominal"
+    healthy_mean: 1.0
+    healthy_sd: 0.18
+    requires: [drive_temp_c]
+
+  speed_feedback_coverage:
+    description: "Fraction of commanded-motion frames carrying usable speed feedback"
+    healthy_mean: 1.0
+    healthy_sd: 0.030
+    requires: [speed_mps]
+  speed_feedback_dropout_ratio:
+    description: "Fraction of motion frames where feedback vanished while current flowed"
+    healthy_mean: 0.0
+    healthy_sd: 0.030
+    requires: [speed_mps, motor_current_a]
+  speed_track_error_ratio:
+    description: "Mean |reference - measured| speed, relative to rated speed"
+    healthy_mean: 0.04
+    healthy_sd: 0.030
+    requires: [speed_mps, speed_ref_mps]
+  accel_deficit_ratio:
+    description: "Shortfall of achieved acceleration against the expected profile"
+    healthy_mean: 0.03
+    healthy_sd: 0.050
+    requires: [speed_mps]
+  encoder_noise_ratio:
+    description: "High-frequency speed-channel noise relative to healthy baseline"
+    healthy_mean: 1.0
+    healthy_sd: 0.20
+    requires: [speed_mps]
+  encoder_internal_consistency:
+    description: "Agreement between the speed channel and the position derivative"
+    healthy_mean: 0.97
+    healthy_sd: 0.040
+    requires: [speed_mps, position_m]
+
+  brake_release_proof:
+    description: "Brake release proof asserted by the controller"
+    healthy_mean: 1.0
+    healthy_sd: 0.12
+    requires: []
+  brake_current_ratio:
+    description: "Brake coil holding current relative to nominal release current"
+    healthy_mean: 1.0
+    healthy_sd: 0.090
+    requires: [brake_current_a]
+  brake_release_delay_ratio:
+    description: "Delay from brake command to release proof, relative to nominal"
+    healthy_mean: 1.0
+    healthy_sd: 0.20
+    requires: []
+
+  vibration_rms_ratio:
+    description: "Vibration RMS during motion relative to healthy baseline"
+    healthy_mean: 1.0
+    healthy_sd: 0.16
+    requires: [vibration_rms]
+
+  # Declared by NO fault, deliberately. At constant commanded speed the required
+  # force should not depend on where the car is in the shaft. A current that
+  # climbs with position is resistance that grows with travel - a mechanism the
+  # public graph does not model. Because nothing claims this feature, abnormality
+  # in it lands entirely in the healthy-novelty residual, which is how an
+  # unmodelled mechanism is meant to surface rather than being forced into the
+  # nearest known label.
+  cruise_current_position_slope:
+    description: "Slope of motor current against car position while holding reference speed"
+    healthy_mean: 0.0
+    healthy_sd: 0.010
+    requires: [motor_current_a, position_m]
+
+  min_channel_integrity:
+    description: "Lowest per-channel integrity score across required channels"
+    healthy_mean: 1.0
+    healthy_sd: 0.040
+    requires: []
+  comms_gap_count:
+    description: "Detected communication gaps in the frame stream"
+    healthy_mean: 0.0
+    healthy_sd: 0.40
+    requires: []
+  stuck_channel_count:
+    description: "Channels held at a constant value across a window that should vary"
+    healthy_mean: 0.0
+    healthy_sd: 0.20
+    requires: []
+  timestamp_skew_ratio:
+    description: "Normalized irregularity of frame timestamps"
+    healthy_mean: 0.0
+    healthy_sd: 0.15
+    requires: []
+
+# --------------------------------------------------------------------------- #
+# Fault evidence models.
+# --------------------------------------------------------------------------- #
+faults:
+
+  door_lock_bounce:
+    subsystem: door
+    prior: 0.045
+    label: "Door lock contact bounce"
+    deviation_phases: [DOOR_CLOSING, LOCK_PROVED]
+    deviation_types: [MISSING_TRANSITION, RETRY_LOOP, LATE_TRANSITION]
+    causal_path:
+      - "Door lock contact makes and breaks under vibration or wear"
+      - "Lock proof never holds long enough to be latched"
+      - "Safety chain never completes, start permission withheld"
+      - "Controller times out and raises a downstream start alarm"
+    downstream_alarms: [LOCK_PROOF_TIMEOUT, START_PERMIT_TIMEOUT, DOOR_CLOSE_TIMEOUT]
+    evidence:
+      - {feature: lock_proof_toggle_count, mean: 5.0, sd: 1.80, weight: 1.6}
+      - {feature: lock_proof_stable_ratio, mean: 0.25, sd: 0.15, weight: 1.2}
+      - {feature: lock_proof_achieved, mean: 0.15, sd: 0.25, weight: 0.8}
+      - {feature: door_current_peak_ratio, mean: 1.00, sd: 0.15, weight: 0.5}
+      - {feature: door_reopen_count, mean: 0.0, sd: 0.50, weight: 0.4}
+      - {feature: start_permit_present, mean: 0.05, sd: 0.20, weight: 0.6}
+      - {feature: safety_chain_toggle_count, mean: 1.0, sd: 0.50, weight: 0.4}
+
+  door_lock_proof_absent:
+    subsystem: door
+    prior: 0.030
+    label: "Door lock proof absent"
+    deviation_phases: [DOOR_CLOSING]
+    deviation_types: [MISSING_TRANSITION]
+    causal_path:
+      - "Lock proof circuit open, miswired, or contact permanently failed"
+      - "Lock proof never asserts at all"
+      - "Safety chain never completes"
+    downstream_alarms: [LOCK_PROOF_TIMEOUT, START_PERMIT_TIMEOUT]
+    evidence:
+      - {feature: lock_proof_achieved, mean: 0.00, sd: 0.15, weight: 1.8}
+      - {feature: lock_proof_toggle_count, mean: 0.10, sd: 0.30, weight: 1.3}
+      - {feature: lock_proof_stable_ratio, mean: 0.02, sd: 0.08, weight: 1.1}
+      - {feature: door_current_peak_ratio, mean: 1.00, sd: 0.15, weight: 0.5}
+      - {feature: door_close_duration_ratio, mean: 1.00, sd: 0.20, weight: 0.3}
+
+  door_obstruction:
+    subsystem: door
+    prior: 0.055
+    label: "Door obstruction"
+    deviation_phases: [DOOR_CLOSING]
+    deviation_types: [RETRY_LOOP, LATE_TRANSITION, MISSING_TRANSITION]
+    causal_path:
+      - "Object or passenger interrupts the closing door"
+      - "Door operator current rises and the reopen protection triggers"
+      - "Close sequence retries and lock proof is never reached"
+    downstream_alarms: [DOOR_CLOSE_TIMEOUT, LOCK_PROOF_TIMEOUT]
+    evidence:
+      - {feature: door_current_peak_ratio, mean: 1.85, sd: 0.30, weight: 1.7}
+      - {feature: door_reopen_count, mean: 2.40, sd: 0.90, weight: 1.5}
+      - {feature: door_close_attempts, mean: 3.00, sd: 1.00, weight: 1.2}
+      - {feature: lock_proof_achieved, mean: 0.10, sd: 0.25, weight: 0.7}
+      - {feature: lock_proof_toggle_count, mean: 0.40, sd: 0.50, weight: 0.6}
+      - {feature: door_close_duration_ratio, mean: 2.10, sd: 0.50, weight: 0.8}
+
+  door_motor_overload:
+    subsystem: door
+    prior: 0.020
+    label: "Door operator overload"
+    deviation_phases: [DOOR_CLOSING, DOOR_OPENING]
+    deviation_types: [LATE_TRANSITION, MISSING_TRANSITION]
+    causal_path:
+      - "Door operator mechanism binds or the belt tension is excessive"
+      - "Operator current stays high through the whole travel"
+      - "Door travel time extends past its guard"
+    downstream_alarms: [DOOR_OPERATOR_OVERCURRENT, DOOR_CLOSE_TIMEOUT]
+    evidence:
+      - {feature: door_current_peak_ratio, mean: 2.20, sd: 0.40, weight: 1.6}
+      - {feature: door_close_duration_ratio, mean: 1.80, sd: 0.35, weight: 1.2}
+      - {feature: door_reopen_count, mean: 0.30, sd: 0.60, weight: 0.4}
+
+  door_position_sensor_fault:
+    subsystem: instrumentation
+    prior: 0.018
+    label: "Door position sensor defect"
+    deviation_phases: [DOOR_CLOSING, DOOR_OPENING]
+    deviation_types: [SIGNAL_EVENT_INCONSISTENCY, MISSING_TRANSITION]
+    causal_path:
+      - "Door position sensor stuck or biased"
+      - "Reported door position contradicts operator current profile"
+      - "Close sequence never confirms"
+    downstream_alarms: [DOOR_CLOSE_TIMEOUT]
+    evidence:
+      - {feature: stuck_channel_count, mean: 1.10, sd: 0.50, weight: 1.4}
+      - {feature: door_current_peak_ratio, mean: 1.00, sd: 0.18, weight: 0.5}
+      - {feature: min_channel_integrity, mean: 0.55, sd: 0.18, weight: 1.0}
+      - {feature: lock_proof_achieved, mean: 0.30, sd: 0.35, weight: 0.4}
+
+  safety_chain_intermittent:
+    subsystem: safety
+    prior: 0.035
+    label: "Safety chain intermittency"
+    deviation_phases: [LOCK_PROVED, SAFETY_CHAIN_PROVED]
+    deviation_types: [MISSING_TRANSITION, RETRY_LOOP]
+    causal_path:
+      - "A series safety contact chatters under vibration or a loose terminal"
+      - "Safety chain proof drops repeatedly after lock proof is established"
+      - "Start permission is withheld despite a correctly closed door"
+    downstream_alarms: [SAFETY_CIRCUIT_OPEN, START_PERMIT_TIMEOUT]
+    evidence:
+      - {feature: safety_chain_toggle_count, mean: 4.50, sd: 1.60, weight: 1.7}
+      - {feature: safety_chain_proved, mean: 0.20, sd: 0.30, weight: 1.0}
+      - {feature: lock_proof_achieved, mean: 1.00, sd: 0.15, weight: 0.9}
+      - {feature: lock_proof_toggle_count, mean: 1.00, sd: 0.40, weight: 0.7}
+      - {feature: start_permit_present, mean: 0.05, sd: 0.20, weight: 0.7}
+
+  start_permit_missing:
+    subsystem: safety
+    prior: 0.022
+    label: "Start permission absent"
+    deviation_phases: [SAFETY_CHAIN_PROVED, START_PERMIT]
+    deviation_types: [MISSING_TRANSITION]
+    causal_path:
+      - "Start permission logic or its input mapping does not assert"
+      - "Drive is never enabled despite a complete safety chain"
+    downstream_alarms: [START_PERMIT_TIMEOUT]
+    evidence:
+      - {feature: start_permit_present, mean: 0.00, sd: 0.12, weight: 1.9}
+      - {feature: safety_chain_proved, mean: 1.00, sd: 0.15, weight: 0.9}
+      - {feature: lock_proof_achieved, mean: 1.00, sd: 0.15, weight: 0.8}
+      - {feature: safety_chain_toggle_count, mean: 1.00, sd: 0.35, weight: 0.5}
+
+  contactor_delay:
+    subsystem: safety
+    prior: 0.020
+    label: "Main contactor feedback delay"
+    deviation_phases: [START_PERMIT, BRAKE_RELEASE]
+    deviation_types: [LATE_TRANSITION]
+    causal_path:
+      - "Main contactor coil or its auxiliary feedback contact is degraded"
+      - "Confirmation arrives late, delaying drive enable"
+      - "Torque build starts outside its expected window"
+    downstream_alarms: [CONTACTOR_FEEDBACK_TIMEOUT, TORQUE_BUILD_TIMEOUT]
+    evidence:
+      - {feature: contactor_confirm_delay_ratio, mean: 4.20, sd: 1.30, weight: 1.8}
+      - {feature: start_permit_present, mean: 1.00, sd: 0.15, weight: 0.6}
+      - {feature: motor_current_peak_ratio, mean: 1.00, sd: 0.15, weight: 0.3}
+      - {feature: safety_chain_proved, mean: 1.00, sd: 0.15, weight: 0.4}
+
+  comms_corruption:
+    subsystem: instrumentation
+    prior: 0.022
+    label: "Communications corruption"
+    deviation_phases: [DOOR_CLOSING, START_PERMIT, TORQUE_BUILD, CRUISE]
+    deviation_types: [SIGNAL_EVENT_INCONSISTENCY, MISSING_TRANSITION]
+    causal_path:
+      - "Field bus frames are lost or arrive out of order"
+      - "Controller inputs and measured channels disagree"
+      - "Journey evidence becomes incomplete rather than abnormal"
+    downstream_alarms: [COMMS_FRAME_LOST]
+    evidence:
+      - {feature: comms_gap_count, mean: 5.50, sd: 2.00, weight: 1.7}
+      - {feature: min_channel_integrity, mean: 0.50, sd: 0.15, weight: 1.2}
+      - {feature: timestamp_skew_ratio, mean: 0.90, sd: 0.50, weight: 0.9}
+      - {feature: stuck_channel_count, mean: 0.20, sd: 0.40, weight: 0.3}
+
+  supply_sag:
+    subsystem: power
+    prior: 0.025
+    label: "AC supply sag"
+    deviation_phases: [TORQUE_BUILD, ACCELERATION]
+    deviation_types: [LATE_TRANSITION]
+    causal_path:
+      - "Incoming supply dips during the high-current starting window"
+      - "DC bus follows the sag but stays above the trip level"
+      - "Torque build is slower than expected"
+    downstream_alarms: [DC_BUS_UNDERVOLTAGE, TORQUE_BUILD_TIMEOUT]
+    evidence:
+      - {feature: dc_bus_min_ratio, mean: 0.860, sd: 0.030, weight: 1.6}
+      - {feature: dc_bus_sag_depth, mean: 0.160, sd: 0.040, weight: 1.5}
+      - {feature: motor_current_peak_ratio, mean: 1.25, sd: 0.20, weight: 0.6}
+      - {feature: accel_deficit_ratio, mean: 0.18, sd: 0.10, weight: 0.6}
+
+  dc_bus_undervoltage:
+    subsystem: power
+    prior: 0.030
+    label: "DC bus undervoltage"
+    deviation_phases: [TORQUE_BUILD, ACCELERATION]
+    deviation_types: [MISSING_TRANSITION, LATE_TRANSITION]
+    causal_path:
+      - "DC bus collapses below the drive's operating window"
+      - "Drive limits or removes torque to protect itself"
+      - "Acceleration never reaches the commanded profile"
+    downstream_alarms: [DC_BUS_UNDERVOLTAGE, MOTION_TIMEOUT]
+    evidence:
+      - {feature: dc_bus_min_ratio, mean: 0.740, sd: 0.040, weight: 1.9}
+      - {feature: dc_bus_sag_depth, mean: 0.270, sd: 0.050, weight: 1.6}
+      - {feature: motor_current_peak_ratio, mean: 0.75, sd: 0.18, weight: 0.7}
+      - {feature: accel_deficit_ratio, mean: 0.35, sd: 0.15, weight: 0.8}
+      - {feature: brake_current_ratio, mean: 1.00, sd: 0.12, weight: 0.4}
+
+  drive_overcurrent:
+    subsystem: drive
+    prior: 0.025
+    label: "Drive overcurrent"
+    deviation_phases: [TORQUE_BUILD, ACCELERATION]
+    deviation_types: [MISSING_TRANSITION, LATE_TRANSITION]
+    causal_path:
+      - "Drive output current exceeds its protection limit"
+      - "Drive trips or folds back torque"
+      - "The run is interrupted early in the motion profile"
+    downstream_alarms: [DRIVE_OVERCURRENT, MOTION_TIMEOUT]
+    evidence:
+      - {feature: motor_current_peak_ratio, mean: 2.10, sd: 0.35, weight: 1.8}
+      - {feature: dc_bus_min_ratio, mean: 0.930, sd: 0.030, weight: 0.5}
+      - {feature: accel_deficit_ratio, mean: 0.25, sd: 0.15, weight: 0.5}
+      - {feature: current_without_motion_ratio, mean: 0.20, sd: 0.12, weight: 0.4}
+
+  drive_cooling_degradation:
+    subsystem: drive
+    prior: 0.020
+    label: "Drive cooling degradation"
+    deviation_phases: [CRUISE, ACCELERATION]
+    deviation_types: [LATE_TRANSITION, SIGNAL_EVENT_INCONSISTENCY]
+    causal_path:
+      - "Cooling airflow is restricted or a fan has degraded"
+      - "Drive temperature rises faster than the load explains"
+      - "Thermal derating eventually limits available torque"
+    downstream_alarms: [DRIVE_OVERTEMP]
+    evidence:
+      - {feature: drive_temp_rise_ratio, mean: 2.40, sd: 0.45, weight: 1.8}
+      - {feature: motor_current_rms_ratio, mean: 1.05, sd: 0.15, weight: 0.3}
+      - {feature: vibration_rms_ratio, mean: 1.00, sd: 0.20, weight: 0.2}
+      - {feature: accel_deficit_ratio, mean: 0.08, sd: 0.08, weight: 0.3}
+
+  encoder_dropout:
+    subsystem: feedback
+    prior: 0.035
+    label: "Encoder / speed feedback dropout"
+    deviation_phases: [TORQUE_BUILD, ACCELERATION, CRUISE]
+    deviation_types: [SIGNAL_EVENT_INCONSISTENCY, MISSING_TRANSITION, LATE_TRANSITION]
+    causal_path:
+      - "Encoder cable, connector or supply intermittently fails"
+      - "Speed and position feedback vanish while torque is still commanded"
+      - "Drive loses closed-loop regulation and stops the run"
+    downstream_alarms: [SPEED_FEEDBACK_LOST, SPEED_DEVIATION, MOTION_TIMEOUT]
+    evidence:
+      - {feature: speed_feedback_coverage, mean: 0.42, sd: 0.15, weight: 1.9}
+      - {feature: speed_feedback_dropout_ratio, mean: 0.55, sd: 0.16, weight: 1.8}
+      - {feature: encoder_internal_consistency, mean: 0.28, sd: 0.14, weight: 1.6}
+      - {feature: speed_track_error_ratio, mean: 0.60, sd: 0.20, weight: 1.0}
+      - {feature: motor_current_peak_ratio, mean: 1.15, sd: 0.20, weight: 0.4}
+      - {feature: brake_current_ratio, mean: 1.00, sd: 0.12, weight: 0.5}
+      - {feature: vibration_rms_ratio, mean: 1.00, sd: 0.20, weight: 0.4}
+
+  encoder_drift:
+    subsystem: feedback
+    prior: 0.028
+    label: "Encoder drift / noise"
+    deviation_phases: [ACCELERATION, CRUISE]
+    deviation_types: [SIGNAL_EVENT_INCONSISTENCY, LATE_TRANSITION]
+    causal_path:
+      - "Encoder signal quality degrades through noise coupling or wear"
+      - "Reported speed becomes noisy but never disappears"
+      - "Drive regulation becomes rough and speed tracking degrades"
+    downstream_alarms: [SPEED_DEVIATION]
+    evidence:
+      - {feature: encoder_noise_ratio, mean: 3.10, sd: 0.80, weight: 1.7}
+      - {feature: encoder_internal_consistency, mean: 0.62, sd: 0.14, weight: 1.3}
+      - {feature: speed_track_error_ratio, mean: 0.28, sd: 0.10, weight: 1.0}
+      - {feature: speed_feedback_coverage, mean: 1.00, sd: 0.050, weight: 0.7}
+      - {feature: speed_feedback_dropout_ratio, mean: 0.02, sd: 0.040, weight: 0.6}
+
+  speed_mismatch:
+    subsystem: feedback
+    prior: 0.018
+    label: "Commanded / measured speed mismatch"
+    deviation_phases: [ACCELERATION, CRUISE, DECELERATION]
+    deviation_types: [SIGNAL_EVENT_INCONSISTENCY]
+    causal_path:
+      - "Measured speed departs from the reference without feedback loss"
+      - "Drive regulation or scaling is inconsistent"
+    downstream_alarms: [SPEED_DEVIATION]
+    evidence:
+      - {feature: speed_track_error_ratio, mean: 0.45, sd: 0.14, weight: 1.6}
+      - {feature: encoder_internal_consistency, mean: 0.90, sd: 0.080, weight: 0.7}
+      - {feature: speed_feedback_coverage, mean: 1.00, sd: 0.050, weight: 0.5}
+      - {feature: encoder_noise_ratio, mean: 1.10, sd: 0.25, weight: 0.4}
+
+  brake_release_failure:
+    subsystem: brake
+    prior: 0.025
+    label: "Brake fails to release"
+    deviation_phases: [BRAKE_RELEASE, TORQUE_BUILD]
+    deviation_types: [MISSING_TRANSITION, LATE_TRANSITION]
+    causal_path:
+      - "Brake coil is not energized or the armature is jammed"
+      - "Release proof never asserts"
+      - "Torque is commanded against a fully applied brake"
+    downstream_alarms: [TORQUE_BUILD_TIMEOUT, MOTION_TIMEOUT, DRIVE_OVERCURRENT]
+    evidence:
+      - {feature: brake_release_proof, mean: 0.00, sd: 0.15, weight: 1.9}
+      - {feature: brake_current_ratio, mean: 0.25, sd: 0.15, weight: 1.6}
+      - {feature: accel_deficit_ratio, mean: 0.85, sd: 0.12, weight: 1.3}
+      - {feature: motor_current_peak_ratio, mean: 1.70, sd: 0.30, weight: 0.9}
+      - {feature: motor_current_rms_ratio, mean: 1.60, sd: 0.25, weight: 1.0}
+      - {feature: current_without_motion_ratio, mean: 0.70, sd: 0.18, weight: 1.1}
+      - {feature: speed_feedback_coverage, mean: 1.00, sd: 0.050, weight: 0.5}
+
+  brake_drag:
+    subsystem: brake
+    prior: 0.030
+    label: "Brake drag"
+    deviation_phases: [TORQUE_BUILD, ACCELERATION]
+    deviation_types: [LATE_TRANSITION, MISSING_TRANSITION]
+    causal_path:
+      - "Brake releases only partially; pads retain contact with the disc"
+      - "Extra resistive torque opposes the drive throughout the run"
+      - "Current rises while achieved acceleration falls short"
+      - "Friction heat and vibration increase and the run times out"
+    downstream_alarms: [TORQUE_BUILD_TIMEOUT, SPEED_DEVIATION, DRIVE_OVERTEMP]
+    evidence:
+      - {feature: accel_deficit_ratio, mean: 0.42, sd: 0.13, weight: 1.6}
+      - {feature: motor_current_peak_ratio, mean: 1.55, sd: 0.22, weight: 1.4}
+      # A dragging brake opposes the drive for the whole run, not just at start,
+      # so RMS current stays elevated throughout - and the armature that only
+      # partly clears takes longer to prove release.
+      - {feature: motor_current_rms_ratio, mean: 1.45, sd: 0.20, weight: 1.2}
+      - {feature: brake_release_delay_ratio, mean: 1.40, sd: 0.35, weight: 0.5}
+      - {feature: current_without_motion_ratio, mean: 0.45, sd: 0.15, weight: 1.3}
+      - {feature: brake_current_ratio, mean: 0.78, sd: 0.090, weight: 1.1}
+      - {feature: vibration_rms_ratio, mean: 1.70, sd: 0.30, weight: 1.0}
+      - {feature: drive_temp_rise_ratio, mean: 1.55, sd: 0.30, weight: 0.9}
+      - {feature: encoder_internal_consistency, mean: 0.97, sd: 0.050, weight: 1.1}
+      - {feature: speed_feedback_coverage, mean: 1.00, sd: 0.040, weight: 0.9}
+      - {feature: speed_feedback_dropout_ratio, mean: 0.01, sd: 0.035, weight: 0.8}
+    caveats:
+      - feature: brake_release_proof
+        when: high
+        threshold: 0.5
+        statement: "Brake release feedback is asserted, so the controller believes the brake opened"
+
+  sensor_fault:
+    subsystem: instrumentation
+    prior: 0.040
+    label: "Instrumentation / data defect"
+    deviation_phases: [DOOR_CLOSING, TORQUE_BUILD, ACCELERATION, CRUISE]
+    deviation_types: [SIGNAL_EVENT_INCONSISTENCY]
+    causal_path:
+      - "A measurement channel is missing, stuck, biased, clipped or delayed"
+      - "Derived features are distorted by the data defect, not by the machine"
+      - "Any equipment diagnosis built on that channel is unsafe to assert"
+    downstream_alarms: [COMMS_FRAME_LOST, SPEED_FEEDBACK_LOST]
+    evidence:
+      - {feature: min_channel_integrity, mean: 0.35, sd: 0.15, weight: 1.9}
+      - {feature: stuck_channel_count, mean: 1.40, sd: 0.60, weight: 1.6}
+      - {feature: timestamp_skew_ratio, mean: 0.45, sd: 0.35, weight: 0.7}
+      - {feature: comms_gap_count, mean: 0.50, sd: 0.80, weight: 0.3}
+
+# --------------------------------------------------------------------------- #
+# Compound fault compatibility.
+#
+# The factorial beam may only activate two faults together if the pair appears
+# here. This keeps the joint state space small, auditable and physically
+# defensible rather than combinatorial.
+# --------------------------------------------------------------------------- #
+compatible_pairs:
+  - [brake_drag, encoder_drift]
+  - [brake_drag, drive_cooling_degradation]
+  - [brake_drag, encoder_dropout]
+  - [encoder_dropout, comms_corruption]
+  - [encoder_drift, speed_mismatch]
+  - [door_lock_bounce, safety_chain_intermittent]
+  - [door_obstruction, door_motor_overload]
+  - [supply_sag, dc_bus_undervoltage]
+  - [dc_bus_undervoltage, drive_overcurrent]
+  - [sensor_fault, comms_corruption]
+  - [sensor_fault, encoder_dropout]
+  - [contactor_delay, safety_chain_intermittent]
+  - [drive_cooling_degradation, drive_overcurrent]
+
+# --------------------------------------------------------------------------- #
+# Faults deliberately EXCLUDED from this graph.
+#
+# mechanical_resistance is the withheld mechanism used to evaluate the unknown
+# path. It must never appear under `faults:` above. The unknown scenario is only
+# an honest test while this list and the graph stay disjoint.
+# --------------------------------------------------------------------------- #
+withheld_from_graph:
+  - mechanical_resistance

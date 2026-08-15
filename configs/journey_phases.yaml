@@ -1,0 +1,186 @@
+# FlowLens canonical elevator journey model.
+#
+# This is a DIAGNOSTIC ABSTRACTION, not a real elevator controller state machine
+# and not derived from any proprietary KONE controller specification. Guard times
+# are generic, synthetic values chosen so the demo is legible.
+#
+# Each phase declares:
+#   entry_evidence   - events that must be observed to enter the phase
+#   expected_next    - permitted successor phases in a nominal journey
+#   guard_ms         - time within which the primary successor must be reached
+#   dwell_ms         - [min, max] nominal occupancy, used for premature/late tests
+#   prohibited_next  - transitions that are physically or logically impossible
+#   observable       - signal channels that carry diagnostic information here
+
+version: "1.0.0"
+
+defaults:
+  # Every phase may terminate into INCIDENT_STOP; this is a fault outcome, not a
+  # deviation in itself. The deviation is whatever preceded it.
+  always_allowed_next: [INCIDENT_STOP, MAINTENANCE]
+  retry_loop_threshold: 2
+
+phases:
+  IDLE:
+    entry_evidence: []
+    expected_next: [CALL_ACCEPTED]
+    guard_ms: null
+    dwell_ms: [0, 600000]
+    prohibited_next: [ACCELERATION, CRUISE, DECELERATION, LEVELING, TORQUE_BUILD]
+    observable: [dc_bus_v, drive_temp_c]
+
+  CALL_ACCEPTED:
+    entry_evidence: [CALL_REGISTERED]
+    expected_next: [DOOR_CLOSING]
+    guard_ms: 1500
+    dwell_ms: [100, 1500]
+    prohibited_next: [ACCELERATION, CRUISE, TORQUE_BUILD, BRAKE_RELEASE]
+    observable: [dc_bus_v, drive_temp_c]
+
+  DOOR_CLOSING:
+    entry_evidence: [DOOR_CLOSE_COMMANDED]
+    expected_next: [LOCK_PROVED]
+    guard_ms: 2500
+    dwell_ms: [800, 2500]
+    prohibited_next: [ACCELERATION, CRUISE, TORQUE_BUILD, BRAKE_RELEASE, START_PERMIT]
+    observable: [door_current_a, dc_bus_v]
+    affected_domains: ["door lock", "door obstruction", "safety-chain input"]
+
+  LOCK_PROVED:
+    entry_evidence: [LOCK_PROOF_CHANGED]
+    # Proof must hold continuously for this long before the phase is considered
+    # entered. This is what makes a bouncing contact distinguishable from a
+    # clean one rather than just "noisy".
+    entry_hold_ms: 250
+    expected_next: [SAFETY_CHAIN_PROVED]
+    guard_ms: 600
+    dwell_ms: [50, 600]
+    prohibited_next: [ACCELERATION, CRUISE, TORQUE_BUILD]
+    observable: [door_current_a, dc_bus_v]
+    affected_domains: ["door lock circuit", "safety-chain input"]
+
+  SAFETY_CHAIN_PROVED:
+    entry_evidence: [SAFETY_CHAIN_CHANGED]
+    entry_hold_ms: 200
+    expected_next: [START_PERMIT]
+    guard_ms: 600
+    dwell_ms: [50, 600]
+    prohibited_next: [ACCELERATION, CRUISE, TORQUE_BUILD]
+    observable: [dc_bus_v]
+    affected_domains: ["safety chain", "controller input mapping", "communications"]
+
+  START_PERMIT:
+    entry_evidence: [START_PERMIT_CHANGED]
+    expected_next: [BRAKE_RELEASE]
+    guard_ms: 900
+    dwell_ms: [80, 900]
+    prohibited_next: [ACCELERATION, CRUISE]
+    observable: [dc_bus_v, motor_current_a]
+    affected_domains: ["main contactor", "start permission", "drive enable"]
+
+  BRAKE_RELEASE:
+    entry_evidence: [BRAKE_COMMAND_CHANGED]
+    expected_next: [TORQUE_BUILD]
+    guard_ms: 800
+    dwell_ms: [150, 800]
+    prohibited_next: [CRUISE, DECELERATION]
+    observable: [brake_current_a, motor_current_a, dc_bus_v]
+    affected_domains: ["brake coil", "brake proof switch", "drive enable"]
+
+  TORQUE_BUILD:
+    entry_evidence: [SPEED_REFERENCE_CHANGED]
+    expected_next: [ACCELERATION]
+    guard_ms: 1200
+    dwell_ms: [150, 1200]
+    prohibited_next: [CRUISE, DECELERATION]
+    observable: [motor_current_a, dc_bus_v, brake_current_a, speed_mps]
+    affected_domains: ["brake drag", "drive torque", "supply", "mechanical resistance"]
+
+  ACCELERATION:
+    entry_evidence: [MOTION_DETECTED]
+    expected_next: [CRUISE]
+    guard_ms: 3500
+    dwell_ms: [400, 3500]
+    prohibited_next: []
+    observable: [speed_mps, accel_mps2, motor_current_a, dc_bus_v, vibration_rms]
+    affected_domains: ["encoder feedback", "brake drag", "drive current limit", "load"]
+
+  CRUISE:
+    entry_evidence: []
+    expected_next: [DECELERATION]
+    guard_ms: 12000
+    dwell_ms: [200, 25000]
+    prohibited_next: []
+    observable: [speed_mps, motor_current_a, dc_bus_v, vibration_rms, drive_temp_c]
+    affected_domains: ["encoder feedback", "drive regulation", "mechanical resistance"]
+
+  DECELERATION:
+    entry_evidence: [SPEED_REFERENCE_CHANGED]
+    expected_next: [LEVELING]
+    guard_ms: 4500
+    dwell_ms: [600, 4500]
+    prohibited_next: []
+    observable: [speed_mps, accel_mps2, motor_current_a, dc_bus_v]
+    affected_domains: ["encoder feedback", "drive regulation", "brake"]
+
+  LEVELING:
+    entry_evidence: [LEVEL_REACHED]
+    expected_next: [BRAKE_SET]
+    guard_ms: 3000
+    dwell_ms: [200, 3000]
+    prohibited_next: []
+    observable: [speed_mps, position_m, motor_current_a]
+    affected_domains: ["leveling sensor", "encoder feedback", "drive regulation"]
+
+  BRAKE_SET:
+    entry_evidence: [BRAKE_PROOF_CHANGED]
+    expected_next: [DOOR_OPENING]
+    guard_ms: 1500
+    dwell_ms: [100, 1500]
+    prohibited_next: [ACCELERATION, CRUISE]
+    observable: [brake_current_a, motor_current_a]
+    affected_domains: ["brake coil", "brake proof switch"]
+
+  DOOR_OPENING:
+    entry_evidence: [DOOR_OPEN_COMMANDED]
+    expected_next: [DOOR_OPEN]
+    guard_ms: 3000
+    dwell_ms: [700, 3000]
+    prohibited_next: [ACCELERATION, CRUISE, TORQUE_BUILD]
+    observable: [door_current_a]
+    affected_domains: ["door operator", "door position sensor"]
+
+  DOOR_OPEN:
+    entry_evidence: [DOOR_POSITION_CHANGED]
+    expected_next: [IDLE]
+    guard_ms: 6000
+    dwell_ms: [500, 6000]
+    prohibited_next: [ACCELERATION, CRUISE, TORQUE_BUILD]
+    observable: [door_current_a]
+
+  INCIDENT_STOP:
+    entry_evidence: []
+    expected_next: [MAINTENANCE, IDLE]
+    guard_ms: null
+    dwell_ms: [0, 600000]
+    prohibited_next: [ACCELERATION, CRUISE, TORQUE_BUILD]
+    observable: [dc_bus_v, drive_temp_c, motor_current_a]
+    terminal: true
+
+  MAINTENANCE:
+    entry_evidence: []
+    expected_next: [IDLE]
+    guard_ms: null
+    dwell_ms: [0, 600000]
+    prohibited_next: []
+    observable: [dc_bus_v, drive_temp_c]
+    terminal: true
+
+# Motion is unreachable unless the full permission chain has been evidenced.
+motion_permission_chain:
+  - LOCK_PROVED
+  - SAFETY_CHAIN_PROVED
+  - START_PERMIT
+  - BRAKE_RELEASE
+
+motion_phases: [ACCELERATION, CRUISE, DECELERATION, LEVELING]

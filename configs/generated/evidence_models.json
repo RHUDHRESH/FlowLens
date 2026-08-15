@@ -1,0 +1,599 @@
+{
+  "faults": {
+    "brake_drag": {
+      "accel_deficit_ratio": {
+        "mean": 0.484294234592445,
+        "sd": 0.14030170974155076
+      },
+      "brake_current_ratio": {
+        "mean": 0.786958999082864,
+        "sd": 0.0786958999082864
+      },
+      "brake_release_delay_ratio": {
+        "mean": 1.375,
+        "sd": 0.1375
+      },
+      "current_without_motion_ratio": {
+        "mean": 0.10981697171381032,
+        "sd": 0.05
+      },
+      "drive_temp_rise_ratio": {
+        "mean": 4.308356878939355,
+        "sd": 0.4308356878939355
+      },
+      "encoder_internal_consistency": {
+        "mean": 0.9731048433048433,
+        "sd": 0.09731048433048434
+      },
+      "motor_current_peak_ratio": {
+        "mean": 1.1965509617510501,
+        "sd": 0.11965509617510502
+      },
+      "motor_current_rms_ratio": {
+        "mean": 2.30021594943748,
+        "sd": 0.230021594943748
+      },
+      "speed_feedback_coverage": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "speed_feedback_dropout_ratio": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "vibration_rms_ratio": {
+        "mean": 1.747873716667331,
+        "sd": 0.1747873716667331
+      }
+    },
+    "brake_release_failure": {
+      "accel_deficit_ratio": {
+        "mean": 0.9514910536779324,
+        "sd": 0.09514910536779325
+      },
+      "brake_current_ratio": {
+        "mean": 0.28499325505104706,
+        "sd": 0.05
+      },
+      "brake_release_proof": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "current_without_motion_ratio": {
+        "mean": 0.621301775147929,
+        "sd": 0.0621301775147929
+      },
+      "motor_current_peak_ratio": {
+        "mean": 1.1961339014732781,
+        "sd": 0.11961339014732782
+      },
+      "motor_current_rms_ratio": {
+        "mean": 2.6987784306892078,
+        "sd": 0.26987784306892076
+      },
+      "speed_feedback_coverage": {
+        "mean": 1.0,
+        "sd": 0.1
+      }
+    },
+    "comms_corruption": {
+      "comms_gap_count": {
+        "mean": 63.5,
+        "sd": 7.412999999999999
+      },
+      "min_channel_integrity": {
+        "mean": 0.5,
+        "sd": 0.05
+      },
+      "stuck_channel_count": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "timestamp_skew_ratio": {
+        "mean": 0.386292094279504,
+        "sd": 0.05
+      }
+    },
+    "contactor_delay": {
+      "contactor_confirm_delay_ratio": {
+        "mean": 7.833333333333333,
+        "sd": 0.7833333333333333
+      },
+      "motor_current_peak_ratio": {
+        "mean": 0.9997186099330694,
+        "sd": 0.09997186099330695
+      },
+      "safety_chain_proved": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "start_permit_present": {
+        "mean": 1.0,
+        "sd": 0.1
+      }
+    },
+    "dc_bus_undervoltage": {
+      "accel_deficit_ratio": {
+        "mean": 0.5435387673956259,
+        "sd": 0.054353876739562594
+      },
+      "brake_current_ratio": {
+        "mean": 1.0217854172949166,
+        "sd": 0.10217854172949166
+      },
+      "dc_bus_min_ratio": {
+        "mean": 0.7078907629791438,
+        "sd": 0.07078907629791438
+      },
+      "dc_bus_sag_depth": {
+        "mean": 0.02452780607526131,
+        "sd": 0.05
+      },
+      "motor_current_peak_ratio": {
+        "mean": 0.7391497330144245,
+        "sd": 0.07391497330144246
+      }
+    },
+    "door_lock_bounce": {
+      "door_current_peak_ratio": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "door_reopen_count": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "lock_proof_achieved": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "lock_proof_stable_ratio": {
+        "mean": 0.1810344827586207,
+        "sd": 0.05
+      },
+      "lock_proof_toggle_count": {
+        "mean": 6.0,
+        "sd": 0.6000000000000001
+      },
+      "safety_chain_toggle_count": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "start_permit_present": {
+        "mean": 0.0,
+        "sd": 0.05
+      }
+    },
+    "door_lock_proof_absent": {
+      "door_close_duration_ratio": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "door_current_peak_ratio": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "lock_proof_achieved": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "lock_proof_stable_ratio": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "lock_proof_toggle_count": {
+        "mean": 0.0,
+        "sd": 0.05
+      }
+    },
+    "door_motor_overload": {
+      "door_close_duration_ratio": {
+        "mean": 1.6666666666666667,
+        "sd": 0.16666666666666669
+      },
+      "door_current_peak_ratio": {
+        "mean": 2.0190479672418835,
+        "sd": 0.20190479672418837
+      },
+      "door_reopen_count": {
+        "mean": 0.0,
+        "sd": 0.05
+      }
+    },
+    "door_obstruction": {
+      "door_close_attempts": {
+        "mean": 3.0,
+        "sd": 0.30000000000000004
+      },
+      "door_close_duration_ratio": {
+        "mean": 2.8518518518518516,
+        "sd": 0.28518518518518515
+      },
+      "door_current_peak_ratio": {
+        "mean": 1.8550014624159112,
+        "sd": 0.18550014624159114
+      },
+      "door_reopen_count": {
+        "mean": 2.0,
+        "sd": 0.2
+      },
+      "lock_proof_achieved": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "lock_proof_toggle_count": {
+        "mean": 0.0,
+        "sd": 0.05
+      }
+    },
+    "door_position_sensor_fault": {
+      "door_current_peak_ratio": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "lock_proof_achieved": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "min_channel_integrity": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "stuck_channel_count": {
+        "mean": 1.0,
+        "sd": 0.1
+      }
+    },
+    "drive_cooling_degradation": {
+      "accel_deficit_ratio": {
+        "mean": 0.0001988071570576122,
+        "sd": 0.05
+      },
+      "drive_temp_rise_ratio": {
+        "mean": 1.1204629428385084,
+        "sd": 0.11204629428385085
+      },
+      "motor_current_rms_ratio": {
+        "mean": 0.9999999999999998,
+        "sd": 0.09999999999999998
+      },
+      "vibration_rms_ratio": {
+        "mean": 1.0,
+        "sd": 0.1
+      }
+    },
+    "drive_overcurrent": {
+      "accel_deficit_ratio": {
+        "mean": 0.43260437375745503,
+        "sd": 0.05
+      },
+      "current_without_motion_ratio": {
+        "mean": 0.3783783783783784,
+        "sd": 0.05
+      },
+      "dc_bus_min_ratio": {
+        "mean": 0.9602700645373627,
+        "sd": 0.09602700645373628
+      },
+      "motor_current_peak_ratio": {
+        "mean": 1.428848511647539,
+        "sd": 0.14288485116475388
+      }
+    },
+    "encoder_drift": {
+      "encoder_internal_consistency": {
+        "mean": 0.970839043262731,
+        "sd": 0.0970839043262731
+      },
+      "encoder_noise_ratio": {
+        "mean": 4.447111153355566,
+        "sd": 0.6376510929542331
+      },
+      "speed_feedback_coverage": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "speed_feedback_dropout_ratio": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "speed_track_error_ratio": {
+        "mean": 0.12271561453000833,
+        "sd": 0.0517605122113268
+      }
+    },
+    "encoder_dropout": {
+      "brake_current_ratio": {
+        "mean": 1.1177502924954037,
+        "sd": 0.11177502924954037
+      },
+      "encoder_internal_consistency": {
+        "mean": 0.9616913461538461,
+        "sd": 0.09616913461538462
+      },
+      "motor_current_peak_ratio": {
+        "mean": 0.9998777293161552,
+        "sd": 0.09998777293161552
+      },
+      "speed_feedback_coverage": {
+        "mean": 0.3767123287671233,
+        "sd": 0.05
+      },
+      "speed_feedback_dropout_ratio": {
+        "mean": 0.5121951219512195,
+        "sd": 0.051219512195121955
+      },
+      "speed_track_error_ratio": {
+        "mean": 0.28364727272727275,
+        "sd": 0.05
+      },
+      "vibration_rms_ratio": {
+        "mean": 1.014451335115455,
+        "sd": 0.1014451335115455
+      }
+    },
+    "safety_chain_intermittent": {
+      "lock_proof_achieved": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "lock_proof_toggle_count": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "safety_chain_proved": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "safety_chain_toggle_count": {
+        "mean": 12.0,
+        "sd": 1.2000000000000002
+      },
+      "start_permit_present": {
+        "mean": 0.0,
+        "sd": 0.05
+      }
+    },
+    "sensor_fault": {
+      "comms_gap_count": {
+        "mean": 0.0,
+        "sd": 0.05
+      },
+      "min_channel_integrity": {
+        "mean": 0.6557635829662263,
+        "sd": 0.06558491189427318
+      },
+      "stuck_channel_count": {
+        "mean": 2.0,
+        "sd": 1.4826
+      },
+      "timestamp_skew_ratio": {
+        "mean": 0.0,
+        "sd": 0.05
+      }
+    },
+    "speed_mismatch": {
+      "encoder_internal_consistency": {
+        "mean": 0.8152124616745282,
+        "sd": 0.08152124616745282
+      },
+      "encoder_noise_ratio": {
+        "mean": 0.9982593676080997,
+        "sd": 0.09982593676080997
+      },
+      "speed_feedback_coverage": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "speed_track_error_ratio": {
+        "mean": 0.13977747148288971,
+        "sd": 0.05
+      }
+    },
+    "start_permit_missing": {
+      "lock_proof_achieved": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "safety_chain_proved": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "safety_chain_toggle_count": {
+        "mean": 1.0,
+        "sd": 0.1
+      },
+      "start_permit_present": {
+        "mean": 0.0,
+        "sd": 0.05
+      }
+    },
+    "supply_sag": {
+      "accel_deficit_ratio": {
+        "mean": 0.0001988071570576122,
+        "sd": 0.05
+      },
+      "dc_bus_min_ratio": {
+        "mean": 0.8496246855368152,
+        "sd": 0.08496246855368153
+      },
+      "dc_bus_sag_depth": {
+        "mean": 0.1611516268998734,
+        "sd": 0.05
+      },
+      "motor_current_peak_ratio": {
+        "mean": 1.1333420430258812,
+        "sd": 0.11333420430258812
+      }
+    }
+  },
+  "fitted_from": {
+    "runs": 736,
+    "seeds": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1015,
+      1016,
+      1017,
+      1018,
+      1019,
+      1020,
+      1021,
+      1022,
+      1023,
+      1024,
+      1025,
+      1026,
+      1027,
+      1028,
+      1029,
+      1030,
+      1031
+    ],
+    "split": "train"
+  },
+  "healthy": {
+    "accel_deficit_ratio": {
+      "mean": 0.0001988071570576122,
+      "sd": 0.05
+    },
+    "brake_current_ratio": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "brake_release_delay_ratio": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "brake_release_proof": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "comms_gap_count": {
+      "mean": 0.0,
+      "sd": 0.05
+    },
+    "contactor_confirm_delay_ratio": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "cruise_current_position_slope": {
+      "mean": -0.0603291292832617,
+      "sd": 0.05
+    },
+    "current_without_motion_ratio": {
+      "mean": 0.048598130841121495,
+      "sd": 0.05
+    },
+    "dc_bus_min_ratio": {
+      "mean": 0.9717992621385161,
+      "sd": 0.09717992621385162
+    },
+    "dc_bus_sag_depth": {
+      "mean": 0.0314086697202281,
+      "sd": 0.05
+    },
+    "door_close_attempts": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "door_close_duration_ratio": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "door_current_peak_ratio": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "door_reopen_count": {
+      "mean": 0.0,
+      "sd": 0.05
+    },
+    "drive_temp_rise_ratio": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "encoder_internal_consistency": {
+      "mean": 0.9708583072100314,
+      "sd": 0.09708583072100314
+    },
+    "encoder_noise_ratio": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "lock_proof_achieved": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "lock_proof_stable_ratio": {
+      "mean": 0.4,
+      "sd": 0.05
+    },
+    "lock_proof_toggle_count": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "min_channel_integrity": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "motor_current_peak_ratio": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "motor_current_rms_ratio": {
+      "mean": 0.9999999999999998,
+      "sd": 0.09999999999999998
+    },
+    "safety_chain_proved": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "safety_chain_toggle_count": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "speed_feedback_coverage": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "speed_feedback_dropout_ratio": {
+      "mean": 0.0,
+      "sd": 0.05
+    },
+    "speed_track_error_ratio": {
+      "mean": 0.08426150190114068,
+      "sd": 0.05
+    },
+    "start_permit_present": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "stuck_channel_count": {
+      "mean": 1.0,
+      "sd": 0.1
+    },
+    "timestamp_skew_ratio": {
+      "mean": 0.0,
+      "sd": 0.05
+    },
+    "vibration_rms_ratio": {
+      "mean": 1.0,
+      "sd": 0.1
+    }
+  },
+  "version": "public-demo-1"
+}

@@ -1,0 +1,84 @@
+# Public demo thresholds.
+#
+# These are generic, synthetic values tuned only against the simulator in this
+# repository. They are NOT PlantLens production thresholds and carry no field
+# validation. Any change here invalidates the committed golden fixtures.
+
+version: "1.0.0"
+
+inference:
+  # Top-K joint fault states retained by the factorial temporal beam.
+  beam_width: 12
+  # Maximum simultaneously active faults in a candidate state.
+  max_active_faults: 2
+  # Log-prior cost of turning a fault on / off between segments.
+  onset_log_penalty: -2.4
+  clear_log_penalty: -3.0
+  persistence_log_bonus: 0.35
+  # Weight applied to the first-deviation alignment term.
+  first_deviation_weight: 2.2
+  # Weight applied to downstream alarm coverage.
+  downstream_coverage_weight: 0.8
+  # Multiplier on negative (contradicting) evidence terms.
+  contradiction_weight: 1.15
+  # Compound states pay this to discourage unnecessary explanation.
+  compound_log_penalty: -1.6
+
+quality:
+  # Below this per-channel integrity a channel is unusable for evidence.
+  unusable_integrity: 0.55
+  # Below this a channel is flagged but still contributes at reduced weight.
+  degraded_integrity: 0.85
+  # Evidence weight multiplier applied at degraded integrity.
+  degraded_weight_floor: 0.25
+  # A run missing this many critical motion channels cannot support a motion fault.
+  max_missing_critical_channels: 0
+
+novelty:
+  # Robust z-score aggregate over phase-conditioned features.
+  threshold: 3.25
+  # Minimum number of usable features before novelty is trusted.
+  min_features: 8
+  # A named fault is only asserted over an abnormal journey when the leading
+  # hypothesis reaches this confidence. Below it, an unexplained observation is
+  # enough to route the case to UNKNOWN rather than to the nearest label.
+  name_confidence: 0.75
+  # Minimum features required before a novelty score is trusted. Low enough that
+  # a journey which stopped in the door phase still gets scored.
+  min_features: 5
+
+abstention:
+  # Conformal miscoverage rate. Label sets are built at 1 - alpha coverage.
+  alpha: 0.10
+  # Top-1 probability below which a named fault is never asserted.
+  min_confidence: 0.55
+  # Top-1 minus Top-2 probability below which the case goes to HUMAN_REVIEW.
+  min_margin: 0.12
+  # Healthy assertion needs both no deviation and novelty below this.
+  healthy_novelty_ceiling: 2.0
+  # Sensor evidence above this share of total evidence routes to SENSOR_CHECK.
+  sensor_dominance: 0.45
+  # Minimum usable feature count before INSUFFICIENT_DATA is raised.
+  min_usable_features: 6
+
+planner:
+  # Utility = expected_entropy_reduction / (time_cost + operational_cost + risk_penalty)
+  time_cost_weight: 0.12
+  operational_cost_weight: 1.0
+  risk_penalty_weight: 3.0
+  # Below this expected bit reduction no test is worth recommending.
+  min_expected_bits: 0.02
+  # Number of alternatives shown alongside the recommendation.
+  alternatives_shown: 3
+
+simulator:
+  sample_rate_hz: 50
+  nominal:
+    dc_bus_v: 560.0
+    motor_current_a: 22.0
+    rated_speed_mps: 1.0
+    rated_accel_mps2: 0.8
+    brake_current_a: 1.15
+    door_current_a: 1.40
+    drive_temp_c: 42.0
+    vibration_rms: 0.20

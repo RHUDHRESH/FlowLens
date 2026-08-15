@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: FlowLens RCA Lab
+message: If you reference this evaluation repository, please cite it as below.
+type: software
+authors:
+  - family-names: R.
+    given-names: Rhudhresh
+version: 0.4.0
+date-released: "2026-08-15"
+abstract: >-
+  Evidence-first elevator fault isolation and root cause analysis laboratory
+  for KONE Elevate'26 PS13. Results are simulated, not field performance.
+keywords:
+  - elevator
+  - root-cause analysis
+  - calibrated abstention
+  - next-best-test
+license: OTHER

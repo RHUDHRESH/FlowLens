@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: #04070c;
+  color: #d7e2ee;
+}
+
+body {
+  font-feature-settings: "tnum" 1, "ss01" 1;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #243346 transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #243346;
+  border-radius: 99px;
+}
+
+.panel {
+  @apply rounded-md border border-ink-600 bg-ink-850;
+}
+
+.react-flow__attribution {
+  display: none !important;
+}
