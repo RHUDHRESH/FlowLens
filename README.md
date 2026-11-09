@@ -2,10 +2,13 @@
 
 Evidence-first elevator **fault isolation and root cause analysis**. Not a predictive-maintenance dashboard. Not a chatbot.
 
-**Competition:** KONE Elevate'26 · PS13 Autonomous Fault Isolation and Root Cause Analysis Assistant  
-**Owner:** Rhudhresh R. · **Event:** 24–25 September 2026
+**Built for:** KONE Elevate'26 · PS13 Autonomous Fault Isolation and Root Cause Analysis Assistant (24–25 September 2026)  
+**Owner:** Rhudhresh R.  
+**Stack:** Python 3.12 (FastAPI, NumPy, SciPy, scikit-learn, pandas), React 18 with Vite, Tailwind CSS and React Flow, Docker
 
 FlowLens reconstructs an elevator journey, finds the first causal deviation, ranks root-cause hypotheses with support **and** contradictions, abstains when evidence is insufficient, and recommends the safest **whitelisted, non-actuating** next diagnostic test.
+
+## Quick start
 
 ```text
 docker compose up --build
@@ -34,11 +37,11 @@ CLI equivalent:
 
 ```text
 python -m flowlens demo
-python -m flowlens inject  # make inject FAULT=door_lock_bounce
-python -m flowlens incident-report
+python -m flowlens diagnose door_lock_bounce   # make inject FAULT=door_lock_bounce
+python -m flowlens report door_lock_bounce     # make incident-report FAULT=door_lock_bounce
 ```
 
-`make` targets (`setup`, `demo`, `test`, `benchmark`, `inject`, `incident-report`, `generate-scenarios`, `offline-bundle`) match the command contract. On Windows without Make, use `python -m flowlens <command>`.
+`make` targets (`setup`, `demo`, `test`, `benchmark`, `inject`, `incident-report`, `generate-scenarios`, `offline-bundle`) wrap these commands. On Windows without Make, run the `python -m flowlens <command>` form directly.
 
 ## Safety boundary
 
@@ -48,7 +51,7 @@ FlowLens is **read-only**. It cannot reset faults, command motion, release a bra
 
 Every metric in `benchmarks/published_results/` is an **achieved simulated result** on a deterministic laboratory. It is not elevator field performance and it is not a safety certification. See `docs/claim_evidence_matrix.md`.
 
-## Status (15 August 2026 screening)
+## Roadmap
 
 | Layer | Status |
 |---|---|
@@ -64,3 +67,6 @@ No proprietary KONE data, logos, fault-code manuals, or PlantLens production wei
 ## Evaluation-use notice
 
 This repository is published for KONE Elevate'26 evaluation. It is **not** licensed as open source. See `NOTICE`.
+
+---
+Built by [Rhudhresh R](https://github.com/RHUDHRESH)
